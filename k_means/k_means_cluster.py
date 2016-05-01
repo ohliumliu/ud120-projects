@@ -50,16 +50,19 @@ feature_1 = "salary"
 feature_2 = "exercised_stock_options"
 feature_3 = "total_payments"
 poi  = "poi"
-features_list = [poi, feature_1, feature_2, feature_3]
+features_list = [poi, feature_1, feature_2]
 data = featureFormat(data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
 
+from sklearn import preprocessing
+scaler = preprocessing.MinMaxScaler()
+finance_features_scaled = scaler.fit_transform(numpy.array(finance_features))
 
 ### in the "clustering with 3 features" part of the mini-project,
 ### you'll want to change this line to 
 ### for f1, f2, _ in finance_features:
 ### (as it's currently written, the line below assumes 2 features)
-for f1, f2, _ in finance_features:
+for f1, f2 in finance_features_scaled:
     plt.scatter( f1, f2 )
     plt.xlabel(feature_1)
     plt.ylabel(feature_2)
@@ -70,8 +73,8 @@ plt.show()
 
 from sklearn import cluster
 kmean_cluster = cluster.KMeans(n_clusters=2)
-kmean_cluster.fit(finance_features)
-pred = kmean_cluster.predict(finance_features)
+kmean_cluster.fit(finance_features_scaled)
+pred = kmean_cluster.predict(finance_features_scaled)
 
 
 ## maximum and minimum of exercised_stock_options
@@ -85,6 +88,6 @@ print "min:", min([data_dict[k]['salary'] for k in data_dict.keys() if data_dict
 ### rename the "name" parameter when you change the number of features
 ### so that the figure gets saved to a different file
 try:
-    Draw(pred, finance_features, poi, mark_poi=False, name="clusters.pdf", f1_name=feature_1, f2_name=feature_2)
+    Draw(pred, finance_features_scaled, poi, mark_poi=False, name="clusters.pdf", f1_name=feature_1, f2_name=feature_2)
 except NameError:
     print "no predictions object named pred found, no clusters to plot"
